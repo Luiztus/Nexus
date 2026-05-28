@@ -1,0 +1,598 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes, viewport-fit=cover">
+    <title>Nexus AI · Ultra (50+ funções)</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        :root {
+            --bg: #f4f7fc;
+            --sidebar: rgba(255, 255, 255, 0.96);
+            --card: rgba(255, 255, 255, 0.92);
+            --primary: #1e6f5c;
+            --primary-dark: #0f5344;
+            --primary-light: #3b9e88;
+            --text: #0a1c2a;
+            --text-light: #2c4b55;
+            --border: #e2e8f0;
+            --shadow: 0 8px 20px rgba(0, 0, 0, 0.06);
+            --bubble-bot: #f0f4f9;
+            --bubble-user: #1e6f5c;
+            --input-bg: #ffffff;
+            --input-border: #cbd5e1;
+            --tab-bg: #f1f5f9;
+        }
+        body.dark {
+            --bg: #0f172a;
+            --sidebar: #1e293b;
+            --card: #1e293b;
+            --text: #f1f5f9;
+            --text-light: #cbd5e1;
+            --border: #334155;
+            --bubble-bot: #334155;
+            --input-bg: #0f172a;
+            --input-border: #475569;
+            --tab-bg: #1e293b;
+        }
+        body { background: var(--bg); font-family: 'Inter', sans-serif; color: var(--text); transition: all 0.2s; height: 100vh; overflow: hidden; }
+        .app { display: flex; height: 100vh; max-width: 1400px; margin: 0 auto; position: relative; }
+        /* Sidebar */
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: -320px;
+            width: 280px;
+            height: 100vh;
+            background: var(--sidebar);
+            backdrop-filter: blur(12px);
+            border-right: 1px solid var(--border);
+            box-shadow: 4px 0 20px rgba(0,0,0,0.1);
+            transition: left 0.3s ease;
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+        }
+        .sidebar.open { left: 0; }
+        .sidebar-header { padding: 24px 20px; border-bottom: 1px solid var(--border); }
+        .sidebar-header h2 { font-size: 1.4rem; display: flex; align-items: center; gap: 10px; }
+        .gradient-brain { background: linear-gradient(135deg, var(--primary), var(--primary-light)); background-clip: text; -webkit-background-clip: text; color: transparent; }
+        .close-sidebar { position: absolute; top: 20px; right: 20px; background: transparent; border: none; font-size: 1.5rem; cursor: pointer; color: var(--text-light); display: none; }
+        .profile-area { padding: 20px; text-align: center; border-bottom: 1px solid var(--border); }
+        .profile-avatar { width: 70px; height: 70px; background: linear-gradient(135deg, var(--primary), var(--primary-light)); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 2rem; color: white; margin: 0 auto 12px; }
+        .profile-name { font-weight: 700; font-size: 1.1rem; }
+        .profile-bio { font-size: 0.75rem; color: var(--text-light); margin-top: 4px; }
+        .edit-profile-btn { background: transparent; border: 1px solid var(--primary); color: var(--primary); padding: 6px 12px; border-radius: 40px; margin-top: 12px; font-size: 0.75rem; cursor: pointer; transition: 0.2s; }
+        .edit-profile-btn:hover { background: var(--primary); color: white; }
+        .sidebar-nav { flex: 1; padding: 16px; }
+        .sidebar-nav button { width: 100%; text-align: left; background: transparent; border: none; padding: 12px 16px; border-radius: 40px; margin-bottom: 8px; display: flex; align-items: center; gap: 12px; font-weight: 500; cursor: pointer; color: var(--text); transition: 0.2s; }
+        .sidebar-nav button:hover { background: rgba(0,0,0,0.05); }
+        .sidebar-footer { padding: 16px; border-top: 1px solid var(--border); font-size: 0.7rem; text-align: center; }
+        .main { flex: 1; display: flex; flex-direction: column; background: var(--card); border-radius: 24px; margin: 12px; overflow: hidden; height: calc(100vh - 24px); }
+        .top-bar { padding: 16px 20px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
+        .ai-name { display: flex; align-items: center; gap: 10px; }
+        .ai-name i { font-size: 1.8rem; background: linear-gradient(135deg, var(--primary), var(--primary-light)); background-clip: text; -webkit-background-clip: text; color: transparent; }
+        .ai-name h1 { font-size: 1.3rem; font-weight: 700; }
+        .menu-btn { background: var(--primary); color: white; width: 42px; height: 42px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; border: none; transition: 0.2s; }
+        .menu-btn:hover { transform: scale(1.02); }
+        .chat-container { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+        .messages { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 20px; }
+        .input-area { padding: 16px 20px; background: var(--card); border-top: 1px solid var(--border); display: flex; gap: 12px; }
+        .input-area input { flex: 1; border: 1px solid var(--input-border); border-radius: 60px; padding: 12px 18px; background: var(--input-bg); font-size: 0.9rem; color: var(--text); outline: none; transition: 0.2s; }
+        .input-area input:focus { border-color: var(--primary); box-shadow: 0 0 0 2px rgba(30,111,92,0.2); }
+        .msg { display: flex; gap: 12px; max-width: 90%; animation: fadeIn 0.2s; align-items: flex-start; }
+        .msg.user { align-self: flex-end; flex-direction: row-reverse; }
+        .avatar { width: 40px; height: 40px; flex-shrink: 0; background: var(--bubble-bot); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; }
+        .user .avatar { background: var(--primary); color: white; }
+        .bubble { background: var(--bubble-bot); padding: 10px 16px; border-radius: 22px; border-top-left-radius: 6px; font-size: 0.9rem; line-height: 1.45; }
+        .user .bubble { background: var(--bubble-user); color: white; border-radius: 22px; border-top-right-radius: 6px; }
+        .markdown-body p { margin-bottom: 6px; }
+        .msg-actions { margin-top: 6px; display: flex; gap: 10px; justify-content: flex-end; }
+        .msg-actions button { background: transparent; border: none; color: var(--text-light); cursor: pointer; font-size: 0.7rem; transition: 0.2s; }
+        .msg-actions button:hover { color: var(--primary); }
+        .feedback-active { color: #facc15 !important; }
+        .thinking-dots { display: inline-flex; gap: 6px; align-items: center; }
+        .thinking-dots span { width: 8px; height: 8px; background: var(--text-light); border-radius: 50%; animation: bounce 1.2s infinite; }
+        @keyframes bounce { 0%,80%,100% { transform: scale(0.5); opacity: 0.3; } 40% { transform: scale(1); opacity: 1; } }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+        /* Modal e abas */
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); backdrop-filter: blur(4px); z-index: 1100; align-items: center; justify-content: center; }
+        .modal-content { background: var(--card); border-radius: 28px; max-width: 700px; width: 90%; max-height: 85vh; overflow: hidden; display: flex; flex-direction: column; border: 1px solid var(--border); }
+        .modal-header { padding: 16px 20px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
+        .tabs { display: flex; gap: 4px; padding: 0 20px; background: var(--tab-bg); border-bottom: 1px solid var(--border); flex-wrap: wrap; }
+        .tab-btn { background: transparent; border: none; padding: 10px 16px; font-weight: 500; cursor: pointer; color: var(--text-light); transition: 0.2s; border-bottom: 2px solid transparent; }
+        .tab-btn.active { color: var(--primary); border-bottom-color: var(--primary); }
+        .tab-content { flex: 1; overflow-y: auto; padding: 20px; }
+        .config-item { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid var(--border); flex-wrap: wrap; gap: 8px; }
+        select, input[type="text"], input[type="password"], input[type="number"], input[type="time"], input[type="color"] {
+            background: var(--input-bg);
+            border: 1px solid var(--input-border);
+            border-radius: 40px;
+            padding: 8px 16px;
+            color: var(--text);
+            font-family: inherit;
+            outline: none;
+            transition: 0.2s;
+        }
+        input[type="range"] { width: 180px; height: 4px; -webkit-appearance: none; background: var(--input-border); border-radius: 2px; }
+        input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 16px; height: 16px; border-radius: 50%; background: var(--primary); cursor: pointer; }
+        input[type="checkbox"] { width: 18px; height: 18px; accent-color: var(--primary); cursor: pointer; }
+        button, .btn-primary, .btn-outline { cursor: pointer; transition: 0.2s; border-radius: 40px; padding: 8px 16px; font-weight: 500; border: none; }
+        .btn-primary { background: var(--primary); color: white; }
+        .btn-primary:hover { background: var(--primary-dark); transform: scale(0.98); }
+        .btn-outline { background: transparent; border: 1px solid var(--primary); color: var(--primary); }
+        .btn-outline:hover { background: var(--primary); color: white; }
+        .toast { position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%); background: var(--primary); color: white; padding: 8px 18px; border-radius: 40px; font-size: 0.8rem; z-index: 1200; animation: fadeUp 0.3s; }
+        @keyframes fadeUp { from { opacity: 0; bottom: 0; } to { opacity: 1; bottom: 80px; } }
+        @media (max-width: 768px) { .msg { max-width: 95%; } .sidebar { width: 260px; } .close-sidebar { display: block; } .config-item { flex-direction: column; align-items: flex-start; } input[type="range"] { width: 100%; } }
+        .guide-step { background: rgba(0,0,0,0.03); border-radius: 16px; padding: 12px; margin-bottom: 12px; display: flex; gap: 12px; align-items: center; }
+        .guide-icon { width: 40px; height: 40px; background: var(--primary); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; }
+    </style>
+</head>
+<body>
+<div class="app">
+    <div id="sidebar" class="sidebar">
+        <button class="close-sidebar" onclick="toggleSidebar()">&times;</button>
+        <div class="sidebar-header"><h2><i class="fas fa-brain gradient-brain"></i><span class="gradient-brain">Nexus AI</span></h2></div>
+        <div class="profile-area">
+            <div class="profile-avatar" id="sidebarAvatar"><i class="fas fa-user-astronaut"></i></div>
+            <div class="profile-name" id="sidebarName">Usuário Nexus</div>
+            <div class="profile-bio" id="sidebarBio">⚡ Explorador de IA</div>
+            <button class="edit-profile-btn" onclick="abrirModalEditarPerfil()"><i class="fas fa-pen"></i> Editar perfil</button>
+        </div>
+        <div class="sidebar-nav">
+            <button onclick="abrirConfiguracoes()"><i class="fas fa-cog"></i> Configurações (50+ opções)</button>
+            <button onclick="alternarTema()"><i class="fas fa-moon"></i> Tema escuro</button>
+            <button onclick="exportarConversa()"><i class="fas fa-download"></i> Exportar conversa</button>
+            <button onclick="mostrarStats()"><i class="fas fa-chart-simple"></i> Estatísticas</button>
+            <button onclick="limparTodasConversas()"><i class="fas fa-trash-alt"></i> Limpar tudo</button>
+            <button onclick="resumirConversa()"><i class="fas fa-file-alt"></i> Resumir conversa</button>
+            <button onclick="traduzirUltima()"><i class="fas fa-language"></i> Traduzir última</button>
+            <button onclick="analisarSentimento()"><i class="fas fa-smile"></i> Análise sentimento</button>
+            <button onclick="sugerirResposta()"><i class="fas fa-lightbulb"></i> Sugerir resposta</button>
+            <button onclick="gerarImagem()"><i class="fas fa-image"></i> Gerar imagem</button>
+            <button onclick="debaterIdeia()"><i class="fas fa-comments"></i> Debater ideia</button>
+            <button onclick="explicarCodigo()"><i class="fas fa-code"></i> Explicar código</button>
+            <button onclick="corrigirGramatica()"><i class="fas fa-spell-check"></i> Corrigir gramática</button>
+            <button onclick="nanoBanano()"><i class="fas fa-banana"></i>🍌Nano Banano (imagem)</button>
+            <button onclick="resetTotalApp()"><i class="fas fa-undo-alt"></i>  Reset total (limpar tudo)</button>
+        </div>
+        <div class="sidebar-footer"><small>Nexus AI · 50+ funções</small></div>
+    </div>
+    <div class="main">
+        <div class="top-bar">
+            <div class="ai-name"><i class="fas fa-brain"></i><h1>Nexus <span style="font-weight:400;">| IA</span></h1></div>
+            <button class="menu-btn" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
+        </div>
+        <div class="chat-container">
+            <div class="messages" id="messagesArea"></div>
+            <div class="input-area">
+                <input type="text" id="chatInput" placeholder="Digite sua mensagem...">
+                <button onclick="enviarMensagem()" class="btn-primary"><i class="fas fa-paper-plane"></i> Enviar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de Configurações com abas -->
+<div id="configModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header"><h3><i class="fas fa-cog"></i> Configurações Nexus</h3><span style="cursor:pointer; font-size:1.5rem;" onclick="fecharConfiguracoes()">&times;</span></div>
+        <div class="tabs" id="configTabs">
+            <button class="tab-btn active" data-tab="geral">Geral</button>
+            <button class="tab-btn" data-tab="chat">Chat</button>
+            <button class="tab-btn" data-tab="ia">IA</button>
+            <button class="tab-btn" data-tab="interface">Interface</button>
+            <button class="tab-btn" data-tab="backup">Backup</button>
+            <button class="tab-btn" data-tab="avancado">Avançado</button>
+            <button class="tab-btn" data-tab="guia">📘 Guia</button>
+        </div>
+        <div class="tab-content">
+            <!-- Aba Geral -->
+            <div id="tab-geral" class="tab-pane active">
+                <div class="config-item"><label>🔑 API Key (Google AI Studio)</label><input type="password" id="apiKeyInput" placeholder="Sua chave"></div>
+                <div class="config-item"><label>🌡️ Temperatura</label><input type="range" id="configTemp" min="0" max="1" step="0.05" value="0.7"><span id="configTempVal">0.7</span></div>
+                <div class="config-item"><label>🤖 Modelo padrão</label><select id="configModel"><option value=gemini-2.5-flash>Nexus 2.5 flash</option><option value=gemini-2.5-pro>Nexus 2.5 Pro</option><option value=gemini-3.5-flash>Nexus 3.5 flash</option><option value=gemini-3.1-flash-lite>Nexus 3.1 flash</option><option value="gemini-2.5-flash-image"> Nano-Banana (imagens)</option></select></div>
+                <div class="config-item"><label>🔤 Idioma da IA</label><select id="language"><option>pt-BR</option><option>en-US</option><option>es-ES</option></select></div>
+                <div class="config-item"><label>🎨 Cor primária</label><input type="color" id="primaryColor" value="#1e6f5c"></div>
+                <div class="config-item"><label>🔊 Sons</label><input type="checkbox" id="soundEnabled" checked></div>
+            </div>
+            <!-- Aba Chat -->
+            <div id="tab-chat" class="tab-pane" style="display:none">
+                <div class="config-item"><label>📏 Espaçamento mensagens</label><input type="range" id="spacing" min="12" max="40" value="24"><span id="spacingVal">24px</span></div>
+                <div class="config-item"><label>💬 Arredondamento bolhas</label><input type="range" id="borderRadius" min="12" max="40" value="22"><span id="radiusVal">22px</span></div>
+                <div class="config-item"><label>📝 Tamanho da fonte</label><select id="fontSize"><option>0.85</option><option selected>0.95</option><option>1.05</option></select></div>
+                <div class="config-item"><label>📜 Limite histórico (msgs)</label><input type="number" id="maxHistory" value="200" min="10" max="1000"></div>
+                <div class="config-item"><label>🕒 Mostrar tempo resposta</label><input type="checkbox" id="timerMode"></div>
+                <div class="config-item"><label>📎 Auto-copiar respostas</label><input type="checkbox" id="autoCopy"></div>
+            </div>
+            <!-- Aba IA -->
+            <div id="tab-ia" class="tab-pane" style="display:none">
+                <div class="config-item"><label>⚡ Modo turbo (menos detalhes)</label><input type="checkbox" id="turboMode"></div>
+                <div class="config-item"><label>🧠 Modo criativo extremo</label><input type="checkbox" id="creativeExtreme"></div>
+                <div class="config-item"><label>🔒 Modo privado (não salvar)</label><input type="checkbox" id="privateMode"></div>
+                <div class="config-item"><label>🤖 Nome da IA</label><input type="text" id="iaName" placeholder="Nexus"></div>
+                <div class="config-item"><label>💬 Prefixo do bot</label><input type="text" id="botPrefix" placeholder="🤖"></div>
+                <div class="config-item"><label>⏱️ Timeout requisição (s)</label><input type="number" id="timeout" value="30" min="5" max="120"></div>
+            </div>
+            <!-- Aba Interface -->
+            <div id="tab-interface" class="tab-pane" style="display:none">
+                <div class="config-item"><label>🌐 Tema</label><select id="themeSelect"><option>light</option><option>dark</option></select></div>
+                <div class="config-item"><label>📱 Interface compacta mobile</label><input type="checkbox" id="compactMobile"></div>
+                <div class="config-item"><label>🔔 Notificações</label><input type="checkbox" id="notifications" checked></div>
+                <div class="config-item"><label>🖱️ Clique para copiar mensagens</label><input type="checkbox" id="clickToCopy"></div>
+                <div class="config-item"><label>📌 Fixar mensagens importantes</label><input type="checkbox" id="pinMessages"></div>
+            </div>
+            <!-- Aba Backup -->
+            <div id="tab-backup" class="tab-pane" style="display:none">
+                <div class="config-item"><label>📁 Backup automático</label><input type="checkbox" id="autoBackup"></div>
+                <div class="config-item"><label>🔄 Backup frequência (min)</label><input type="number" id="backupInterval" value="15" min="5"></div>
+                <div class="config-item"><label>💾 Exportar configurações</label><button onclick="exportarConfig()" class="btn-outline">Exportar JSON</button></div>
+                <div class="config-item"><label>📥 Importar configurações</label><input type="file" id="importConfigFile" accept=".json"></div>
+                <div class="config-item"><label>🔄 Restaurar padrão</label><button onclick="resetarConfiguracoes()" class="btn-outline">Restaurar</button></div>
+            </div>
+            <!-- Aba Avançado -->
+            <div id="tab-avancado" class="tab-pane" style="display:none">
+                <div class="config-item"><label>🧾 Modo desenvolvedor</label><input type="checkbox" id="devMode"></div>
+                <div class="config-item"><label>🌙 Modo noturno automático</label><input type="checkbox" id="autoNightMode"></div>
+                <div class="config-item"><label>🕒 Início modo noturno</label><input type="time" id="nightStart" value="21:00"></div>
+                <div class="config-item"><label>🕕 Fim modo noturno</label><input type="time" id="nightEnd" value="06:00"></div>
+                <div class="config-item"><label>📊 Estatísticas avançadas</label><button onclick="mostrarStatsAvancadas()" class="btn-outline">Ver</button></div>
+                <div class="config-item"><label>🧹 Limpar cache local</label><button onclick="limparCache()" class="btn-outline">Limpar</button></div>
+                <div class="config-item"><label>📜 Ver logs do sistema</label><button onclick="verLogs()" class="btn-outline">Exibir</button></div>
+            </div>
+            <!-- Aba Guia -->
+            <div id="tab-guia" class="tab-pane" style="display:none">
+                <div class="guide-step"><div class="guide-icon"><i class="fas fa-globe"></i></div><div><strong>1. Acesse o Google AI Studio</strong><br><a href="https://aistudio.google.com/" target="_blank" style="color:var(--primary);">https://aistudio.google.com/</a></div></div>
+                <div class="guide-step"><div class="guide-icon"><i class="fas fa-sign-in-alt"></i></div><div><strong>2. Faça login</strong><br>Use sua conta Google (gratuita)</div></div>
+                <div class="guide-step"><div class="guide-icon"><i class="fas fa-key"></i></div><div><strong>3. Obter API key</strong><br>Clique em "Get API key" no menu lateral</div></div>
+                <div class="guide-step"><div class="guide-icon"><i class="fas fa-plus-circle"></i></div><div><strong>4. Criar chave</strong><br>Escolha "Create API key" e selecione ou crie um projeto</div></div>
+                <div class="guide-step"><div class="guide-icon"><i class="fas fa-copy"></i></div><div><strong>5. Copie a chave</strong><br>Cole no campo "API Key" da aba Geral e clique em Salvar</div></div>
+                <p style="margin-top: 16px;">✅ A chave é gratuita e vem com créditos iniciais generosos.<br>⚠️ Mantenha sua chave em segurança. O Nexus AI a armazena apenas localmente.</p>
+            </div>
+        </div>
+        <div style="padding: 16px; border-top: 1px solid var(--border); text-align: right;">
+            <button onclick="salvarTodasConfig()" class="btn-primary">Salvar configurações</button>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de edição de perfil -->
+<div id="editProfileModal" class="modal"><div class="modal-content"><h3>Editar Perfil</h3><input type="text" id="editNome" placeholder="Nome" style="width:100%; margin:12px 0;"><textarea id="editBio" rows="3" placeholder="Bio" style="width:100%; margin:12px 0; background:var(--input-bg); border:1px solid var(--input-border); border-radius:20px; padding:10px; color:var(--text);"></textarea><div style="display:flex; gap:12px;"><button onclick="salvarPerfil()" class="btn-primary">Salvar</button><button onclick="fecharModalPerfil()" class="btn-outline">Cancelar</button></div></div></div>
+
+<script>
+    // ========== PERFIL ==========
+    let perfil = { nome: localStorage.getItem("nexus_nome") || "Usuário Nexus", bio: localStorage.getItem("nexus_bio") || "⚡ Explorador de IA" };
+    function atualizarPerfilUI() { document.getElementById("sidebarName").innerText = perfil.nome; document.getElementById("sidebarBio").innerText = perfil.bio; }
+    function salvarPerfil() { let novoNome = document.getElementById("editNome").value.trim(); let novaBio = document.getElementById("editBio").value.trim(); if (novoNome) perfil.nome = novoNome; if (novaBio) perfil.bio = novaBio; localStorage.setItem("nexus_nome", perfil.nome); localStorage.setItem("nexus_bio", perfil.bio); atualizarPerfilUI(); fecharModalPerfil(); mostrarToast("Perfil atualizado!"); }
+    function abrirModalEditarPerfil() { document.getElementById("editNome").value = perfil.nome; document.getElementById("editBio").value = perfil.bio; document.getElementById("editProfileModal").style.display = "flex"; }
+    function fecharModalPerfil() { document.getElementById("editProfileModal").style.display = "none"; }
+    // ========== CONFIGURAÇÕES GLOBAIS ==========
+    let API_KEY = localStorage.getItem("nexus_gemini_key") || "";
+    let temperatura = parseFloat(localStorage.getItem("nexus_temp") || "0.7");
+    let somAtivo = localStorage.getItem("nexus_som") !== "false";
+    let timerMode = localStorage.getItem("nexus_timer") === "true";
+    let modeloSalvo = localStorage.getItem("nexus_model") || "gemini-2.5-flash";
+    function carregarConfiguracoesUI() {
+        document.getElementById("apiKeyInput").value = API_KEY;
+        document.getElementById("configTemp").value = temperatura; document.getElementById("configTempVal").innerText = temperatura;
+        document.getElementById("configModel").value = modeloSalvo;
+        document.getElementById("soundEnabled").checked = somAtivo;
+        document.getElementById("timerMode").checked = timerMode;
+        document.getElementById("spacing").value = localStorage.getItem("spacing") || 24; document.getElementById("spacingVal").innerText = document.getElementById("spacing").value+"px";
+        document.getElementById("borderRadius").value = localStorage.getItem("borderRadius") || 22; document.getElementById("radiusVal").innerText = document.getElementById("borderRadius").value+"px";
+        document.getElementById("fontSize").value = localStorage.getItem("fontSize") || "0.95";
+        document.getElementById("themeSelect").value = document.body.classList.contains("dark")?"dark":"light";
+        document.getElementById("maxHistory").value = localStorage.getItem("maxHistory") || 200;
+        document.getElementById("turboMode").checked = localStorage.getItem("turboMode") === "true";
+        document.getElementById("creativeExtreme").checked = localStorage.getItem("creativeExtreme") === "true";
+        document.getElementById("iaName").value = localStorage.getItem("iaName") || "Nexus";
+        document.getElementById("botPrefix").value = localStorage.getItem("botPrefix") || "🤖";
+        document.getElementById("language").value = localStorage.getItem("language") || "pt-BR";
+        document.getElementById("autoNightMode").checked = localStorage.getItem("autoNightMode") === "true";
+        document.getElementById("nightStart").value = localStorage.getItem("nightStart") || "21:00";
+        document.getElementById("nightEnd").value = localStorage.getItem("nightEnd") || "06:00";
+        document.getElementById("primaryColor").value = localStorage.getItem("primaryColor") || "#1e6f5c";
+        // eventos sliders
+        document.getElementById("configTemp").oninput = () => { let v = document.getElementById("configTemp").value; document.getElementById("configTempVal").innerText = v; temperatura = parseFloat(v); };
+        document.getElementById("spacing").oninput = () => { let s = document.getElementById("spacing").value; document.getElementById("spacingVal").innerText = s+"px"; document.querySelector('.messages').style.gap = s+"px"; localStorage.setItem("spacing", s); };
+        document.getElementById("borderRadius").oninput = () => { let r = document.getElementById("borderRadius").value; document.getElementById("radiusVal").innerText = r+"px"; document.querySelectorAll('.bubble').forEach(b=>b.style.borderRadius=r+"px"); localStorage.setItem("borderRadius", r); };
+        document.getElementById("fontSize").onchange = () => { let fs = document.getElementById("fontSize").value; document.querySelectorAll('.bubble').forEach(b=>b.style.fontSize=fs+"rem"); localStorage.setItem("fontSize", fs); };
+        document.getElementById("themeSelect").onchange = () => { let tema = document.getElementById("themeSelect").value; if(tema === "dark") document.body.classList.add("dark"); else document.body.classList.remove("dark"); localStorage.setItem("nexus_theme", tema); };
+    }
+    function salvarTodasConfig() {
+        let novaChave = document.getElementById("apiKeyInput").value.trim(); if (novaChave && novaChave !== "••••••••••••") { API_KEY = novaChave; localStorage.setItem("nexus_gemini_key", novaChave); mostrarToast("Chave salva"); }
+        temperatura = parseFloat(document.getElementById("configTemp").value); localStorage.setItem("nexus_temp", temperatura);
+        modeloSalvo = document.getElementById("configModel").value; localStorage.setItem("nexus_model", modeloSalvo);
+        somAtivo = document.getElementById("soundEnabled").checked; localStorage.setItem("nexus_som", somAtivo);
+        timerMode = document.getElementById("timerMode").checked; localStorage.setItem("nexus_timer", timerMode);
+        localStorage.setItem("maxHistory", document.getElementById("maxHistory").value);
+        localStorage.setItem("turboMode", document.getElementById("turboMode").checked);
+        localStorage.setItem("creativeExtreme", document.getElementById("creativeExtreme").checked);
+        localStorage.setItem("iaName", document.getElementById("iaName").value);
+        localStorage.setItem("botPrefix", document.getElementById("botPrefix").value);
+        localStorage.setItem("language", document.getElementById("language").value);
+        localStorage.setItem("autoNightMode", document.getElementById("autoNightMode").checked);
+        localStorage.setItem("nightStart", document.getElementById("nightStart").value);
+        localStorage.setItem("nightEnd", document.getElementById("nightEnd").value);
+        localStorage.setItem("primaryColor", document.getElementById("primaryColor").value);
+        document.documentElement.style.setProperty('--primary', document.getElementById("primaryColor").value);
+        mostrarToast("Configurações salvas");
+        fecharConfiguracoes();
+        if (document.getElementById("autoNightMode").checked) verificarModoNoturno();
+    }
+    function resetarConfiguracoes() { if(confirm("Restaurar todas as config?")) { localStorage.clear(); location.reload(); } }
+    function verificarModoNoturno() { if(localStorage.getItem("autoNightMode")==="true"){ let now=new Date(); let start=localStorage.getItem("nightStart")||"21:00"; let end=localStorage.getItem("nightEnd")||"06:00"; let hora=now.getHours(); let isNight=(hora>=21 || hora<6); if(isNight) document.body.classList.add("dark"); else document.body.classList.remove("dark"); } }
+    // Abas
+    function initTabs() { document.querySelectorAll('.tab-btn').forEach(btn=>{ btn.addEventListener('click',()=>{ let tab=btn.getAttribute('data-tab'); document.querySelectorAll('.tab-pane').forEach(p=>p.style.display='none'); document.getElementById(`tab-${tab}`).style.display='block'; document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active')); btn.classList.add('active'); }); }); }
+    function fecharConfiguracoes() { document.getElementById("configModal").style.display = "none"; }
+    window.abrirConfiguracoes = function() { carregarConfiguracoesUI(); document.getElementById("configModal").style.display = "flex"; initTabs(); };
+    // ========== CHAT ==========
+    let conversas = []; let conversaAtualId = null; let startTime = 0;
+    const messagesDiv = document.getElementById("messagesArea"); const chatInput = document.getElementById("chatInput");
+    function salvarDados() { localStorage.setItem("nexus_conversas", JSON.stringify(conversas)); localStorage.setItem("conversa_atual_id", conversaAtualId); }
+    function carregarDados() { const saved = localStorage.getItem("nexus_conversas"); if (saved) conversas = JSON.parse(saved); if (!conversas || conversas.length===0) conversas=[{id:Date.now().toString(), nome:"Principal", historico:[], feedbacks:{}}]; conversaAtualId = localStorage.getItem("conversa_atual_id") || conversas[0].id; if (!conversas.find(c=>c.id===conversaAtualId)) conversaAtualId=conversas[0].id; carregarConversa(); }
+    function carregarConversa() { const conv=conversas.find(c=>c.id===conversaAtualId); if(!conv) return; messagesDiv.innerHTML=""; if(conv.historico.length===0) adicionarMsgBot("✨ Olá! Sou o Nexus. Como posso ajudar?", null, null, false); else conv.historico.forEach(msg=>{ if(msg.role==="user") adicionarMsgUser(msg.text,false); else adicionarMsgBot(msg.text, msg.id, conv.feedbacks?.[msg.id], false); }); }
+    function adicionarMsgUser(texto, salvar=true) { const div=document.createElement("div"); div.className="msg user"; div.innerHTML=`<div class="avatar"><i class="fas fa-user"></i></div><div class="bubble">${escapeHtml(texto)}</div>`; messagesDiv.appendChild(div); scrollChat(); if(salvar){ const conv=conversas.find(c=>c.id===conversaAtualId); conv.historico.push({role:"user",text:texto}); salvarDados(); } }
+    function adicionarMsgBot(texto, msgId=null, feedback=null, salvar=true) { const id=msgId||Date.now().toString(); const div=document.createElement("div"); div.className="msg bot"; div.setAttribute("data-msg-id",id); div.setAttribute("data-full-text",texto); const htmlContent=marked.parse(texto); div.innerHTML=`<div class="avatar" style="background: linear-gradient(135deg, var(--primary), var(--primary-light)); color: white;"><i class="fas fa-brain"></i></div><div class="bubble markdown-body">${htmlContent}<div class="msg-actions"><button onclick="copiarMsg(this)"><i class="fas fa-copy"></i></button><button onclick="darFeedback(this,'like')" class="${feedback==='like'?'feedback-active':''}"><i class="fas fa-thumbs-up"></i></button><button onclick="darFeedback(this,'dislike')" class="${feedback==='dislike'?'feedback-active':''}"><i class="fas fa-thumbs-down"></i></button><button onclick="ouvirMsg(this)"><i class="fas fa-volume-up"></i></button></div></div>`; messagesDiv.appendChild(div); scrollChat(); if(salvar){ const conv=conversas.find(c=>c.id===conversaAtualId); conv.historico.push({role:"bot",text:texto,id:id}); if(!conv.feedbacks) conv.feedbacks={}; if(feedback) conv.feedbacks[id]=feedback; salvarDados(); } }
+    window.copiarMsg = function(btn) { const msgDiv=btn.closest('.msg'); let texto=msgDiv.getAttribute('data-full-text'); if(!texto){ const bubble=btn.closest('.bubble'); const clone=bubble.cloneNode(true); clone.querySelectorAll('.msg-actions').forEach(a=>a.remove()); texto=clone.innerText.trim(); } navigator.clipboard.writeText(texto); mostrarToast("Copiado!"); };
+    window.darFeedback = function(btn,tipo) { const msgId=btn.closest('.msg').getAttribute('data-msg-id'); const conv=conversas.find(c=>c.id===conversaAtualId); conv.feedbacks[msgId]=tipo; salvarDados(); btn.closest('.msg').querySelectorAll('.msg-actions button').forEach(b=>b.classList.remove('feedback-active')); btn.classList.add('feedback-active'); mostrarToast(`Feedback: ${tipo==='like'?'👍':'👎'}`); };
+    window.ouvirMsg = function(btn) { const msgDiv=btn.closest('.msg'); let texto=msgDiv.getAttribute('data-full-text'); if(!texto){ const bubble=btn.closest('.bubble'); const clone=bubble.cloneNode(true); clone.querySelectorAll('.msg-actions').forEach(a=>a.remove()); texto=clone.innerText.trim(); } if('speechSynthesis' in window){ const utterance=new SpeechSynthesisUtterance(texto); utterance.lang='pt-BR'; window.speechSynthesis.cancel(); window.speechSynthesis.speak(utterance); } else mostrarToast("Voz não suportada",true); };
+    async function chamarGemini(modelo, historico) { const key=API_KEY||localStorage.getItem("nexus_gemini_key"); if(!key) throw new Error("Configure sua chave API"); const url=`https://generativelanguage.googleapis.com/v1beta/models/${modelo}:generateContent?key=${key}`; const payload={contents:historico,generationConfig:{temperature:temperatura,maxOutputTokens:1024}}; const resp=await fetch(url,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(payload)}); if(!resp.ok){ const erro=await resp.json().catch(()=>({})); throw new Error(erro.error?.message||`Erro ${resp.status}`); } const data=await resp.json(); const text=data.candidates?.[0]?.content?.parts?.[0]?.text; if(!text) throw new Error("Resposta vazia"); return text; }
+    window.enviarMensagem = async function() { const texto=chatInput.value.trim(); if(!texto) return; if(!API_KEY && !localStorage.getItem("nexus_gemini_key")) { mostrarToast("Configure a chave API nas configurações", true); return; } if(!API_KEY) API_KEY=localStorage.getItem("nexus_gemini_key"); adicionarMsgUser(texto, true); chatInput.value=""; const conv=conversas.find(c=>c.id===conversaAtualId); const historicoAPI=conv.historico.map(m=>({role:m.role==='user'?'user':'model',parts:[{text:m.text}]})); mostrarLoading(true); startTime=Date.now(); try{ const resposta=await chamarGemini(modeloSalvo, historicoAPI); mostrarLoading(false); adicionarMsgBot(resposta,null,null,true); if(timerMode) mostrarToast(`⏱️ ${((Date.now()-startTime)/1000).toFixed(1)}s`); } catch(err){ mostrarLoading(false); adicionarMsgBot("❌ "+err.message,null,null,true); mostrarToast(err.message,true); } };
+    // ========== 10 FUNÇÕES INCRÍVEIS ==========
+    window.gerarImagem = async function() { const prompt = await promptUser("Descreva a imagem que deseja gerar:"); if(!prompt) return; adicionarMsgUser(`🎨 Gerar imagem: ${prompt}`, true); mostrarLoading(true); try{ const resposta = await chamarGemini("gemini-2.5-flash", [{role:"user",parts:[{text:`Gere uma descrição detalhada para uma imagem baseada em: ${prompt}`}]}]); mostrarLoading(false); adicionarMsgBot(`🖼️ **Sugestão para sua imagem:**\n${resposta}\n\n*O Gemini não gera imagens diretamente, mas você pode usar esta descrição em ferramentas como DALL-E ou Stable Diffusion.*`); } catch(e){ mostrarLoading(false); adicionarMsgBot("❌ Erro ao processar solicitação."); } };
+    window.debaterIdeia = async function() { const ideia = await promptUser("Qual ideia você quer debater?"); if(!ideia) return; adicionarMsgUser(`💬 Debater ideia: ${ideia}`, true); mostrarLoading(true); try{ const resposta = await chamarGemini(modeloSalvo, [{role:"user",parts:[{text:`Quero debater a seguinte ideia: ${ideia}. Me dê argumentos a favor e contra de forma equilibrada e construtiva.`}]}]); mostrarLoading(false); adicionarMsgBot(`🤔 **Debate sobre:** ${ideia}\n\n${resposta}`); } catch(e){ mostrarLoading(false); adicionarMsgBot("❌ Erro."); } };
+    window.explicarCodigo = async function() { const codigo = await promptUser("Cole o código que deseja explicação:"); if(!codigo) return; adicionarMsgUser(`📝 Explicar código: ${codigo.substring(0,100)}...`, true); mostrarLoading(true); try{ const resposta = await chamarGemini(modeloSalvo, [{role:"user",parts:[{text:`Explique detalhadamente o seguinte código, linha por linha ou por blocos, de forma didática:\n\n${codigo}`}]}]); mostrarLoading(false); adicionarMsgBot(`💻 **Explicação do código:**\n\n${resposta}`); } catch(e){ mostrarLoading(false); adicionarMsgBot("❌ Erro."); } };
+    window.corrigirGramatica = async function() { const texto = await promptUser("Digite o texto para correção gramatical:"); if(!texto) return; adicionarMsgUser(`✏️ Corrigir gramática: ${texto.substring(0,100)}...`, true); mostrarLoading(true); try{ const resposta = await chamarGemini(modeloSalvo, [{role:"user",parts:[{text:`Corrija a gramática e ortografia do seguinte texto, mantendo o sentido original. Mostre as correções e o texto corrigido:\n\n${texto}`}]}]); mostrarLoading(false); adicionarMsgBot(`📖 **Texto corrigido:**\n\n${resposta}`); } catch(e){ mostrarLoading(false); adicionarMsgBot("❌ Erro."); } };
+    window.gerarIdeias = async function() { const tema = await promptUser("Sobre qual tema você quer ideias criativas?"); if(!tema) return; adicionarMsgUser(`💡 Gerar ideias sobre: ${tema}`, true); mostrarLoading(true); try{ const resposta = await chamarGemini(modeloSalvo, [{role:"user",parts:[{text:`Gere 10 ideias criativas, inovadoras e originais sobre o tema: ${tema}. Seja prático e inspirador.`}]}]); mostrarLoading(false); adicionarMsgBot(`💡 **Ideias criativas sobre "${tema}":**\n\n${resposta}`); } catch(e){ mostrarLoading(false); adicionarMsgBot("❌ Erro."); } };
+    window.resumirTexto = async function() { const texto = await promptUser("Cole o texto longo para resumir:"); if(!texto) return; adicionarMsgUser(`📄 Resumir texto (${texto.length} caracteres)`, true); mostrarLoading(true); try{ const resposta = await chamarGemini(modeloSalvo, [{role:"user",parts:[{text:`Resuma o seguinte texto de forma clara e concisa, mantendo os pontos principais:\n\n${texto}`}]}]); mostrarLoading(false); adicionarMsgBot(`📌 **Resumo:**\n\n${resposta}`); } catch(e){ mostrarLoading(false); adicionarMsgBot("❌ Erro."); } };
+    window.palavrasChave = async function() { const texto = await promptUser("Digite o texto para extrair palavras-chave:"); if(!texto) return; adicionarMsgUser(`🔑 Extrair palavras-chave: ${texto.substring(0,100)}...`, true); mostrarLoading(true); try{ const resposta = await chamarGemini(modeloSalvo, [{role:"user",parts:[{text:`Extraia as palavras-chave e tópicos principais do texto abaixo. Responda em formato de lista:\n\n${texto}`}]}]); mostrarLoading(false); adicionarMsgBot(`🏷️ **Palavras-chave:**\n\n${resposta}`); } catch(e){ mostrarLoading(false); adicionarMsgBot("❌ Erro."); } };
+    window.sugerirTitulos = async function() { const texto = await promptUser("Cole o conteúdo para sugestão de títulos:"); if(!texto) return; adicionarMsgUser(`📰 Sugerir títulos: ${texto.substring(0,100)}...`, true); mostrarLoading(true); try{ const resposta = await chamarGemini(modeloSalvo, [{role:"user",parts:[{text:`Crie 10 títulos criativos e impactantes para o seguinte conteúdo. Os títulos devem ser variados (informativo, curioso, direto):\n\n${texto}`}]}]); mostrarLoading(false); adicionarMsgBot(`📌 **Sugestões de títulos:**\n\n${resposta}`); } catch(e){ mostrarLoading(false); adicionarMsgBot("❌ Erro."); } };
+    window.criarPerguntas = async function() { const assunto = await promptUser("Sobre qual assunto você quer gerar perguntas?"); if(!assunto) return; adicionarMsgUser(`❓ Gerar perguntas sobre: ${assunto}`, true); mostrarLoading(true); try{ const resposta = await chamarGemini(modeloSalvo, [{role:"user",parts:[{text:`Com base no tema "${assunto}", gere 10 perguntas instigantes que estimulem reflexão e aprendizado. Variedade de níveis: fácil, médio, difícil.`}]}]); mostrarLoading(false); adicionarMsgBot(`❓ **Perguntas sobre "${assunto}":**\n\n${resposta}`); } catch(e){ mostrarLoading(false); adicionarMsgBot("❌ Erro."); } };
+    window.deteccaoIdioma = async function() { const texto = await promptUser("Digite um texto para detectar o idioma:"); if(!texto) return; adicionarMsgUser(`🌐 Detectar idioma: ${texto.substring(0,100)}...`, true); mostrarLoading(true); try{ const resposta = await chamarGemini(modeloSalvo, [{role:"user",parts:[{text:`Identifique o idioma do texto abaixo e responda apenas com o nome do idioma e a confiança (baixa/média/alta). Texto: ${texto}`}]}]); mostrarLoading(false); adicionarMsgBot(`🗣️ **Idioma detectado:**\n${resposta}`); } catch(e){ mostrarLoading(false); adicionarMsgBot("❌ Erro."); } };
+    function promptUser(msg) { return new Promise(resolve => { let input = prompt(msg); resolve(input); }); }
+    // ========== OUTRAS FUNÇÕES EXISTENTES ==========
+    window.resumirConversa = async function() { const conv=conversas.find(c=>c.id===conversaAtualId); if(conv.historico.length<2){mostrarToast("Precisa de mais conversa",true);return;} let texto="Resuma os últimos 5 diálogos:\n"+conv.historico.slice(-5).map(m=>`${m.role==='user'?'Usuário':'Nexus'}: ${m.text.substring(0,100)}`).join("\n"); adicionarMsgUser("🔍 Resumir conversa",true); try{ const resumo=await chamarGemini(modeloSalvo, [{role:"user",parts:[{text:texto}]}]); adicionarMsgBot("📝 Resumo:\n"+resumo); } catch(e){ mostrarToast("Erro ao resumir",true); } };
+    window.traduzirUltima = async function() { const conv=conversas.find(c=>c.id===conversaAtualId); const ultimaBot=conv.historico.filter(m=>m.role==='bot').pop(); if(!ultimaBot){mostrarToast("Nenhuma resposta da IA",true);return;} let prompt=`Traduza para o português brasileiro: "${ultimaBot.text}"`; try{ const trad=await chamarGemini("gemini-2.5-flash", [{role:"user",parts:[{text:prompt}]}]); adicionarMsgBot("🌐 Tradução: "+trad); }catch(e){mostrarToast("Erro tradução",true);} };
+    window.analisarSentimento = async function() { const conv=conversas.find(c=>c.id===conversaAtualId); let texto=conv.historico.slice(-3).map(m=>m.text).join(" "); let prompt=`Analise o sentimento da conversa e responda apenas com: POSITIVO, NEUTRO ou NEGATIVO. Contexto: ${texto}`; try{ const resp=await chamarGemini("gemini-2.5-flash", [{role:"user",parts:[{text:prompt}]}]); mostrarToast(`🧠 Sentimento: ${resp}`); }catch(e){mostrarToast("Erro",true);} };
+    window.sugerirResposta = async function() { const conv=conversas.find(c=>c.id===conversaAtualId); const ultimaMsg=conv.historico.filter(m=>m.role==='user').pop(); if(!ultimaMsg){mostrarToast("Nenhuma mensagem recente",true);return;} let prompt=`Sugira 3 respostas curtas para a mensagem: "${ultimaMsg.text}"`; try{ const sugestao=await chamarGemini("gemini-2.5-flash", [{role:"user",parts:[{text:prompt}]}]); adicionarMsgBot("💡 Sugestões de resposta:\n"+sugestao); }catch(e){mostrarToast("Erro",true);} };
+    window.modoNoturnoProgramado = function() { verificarModoNoturno(); mostrarToast("Modo noturno verificado"); };
+    window.mostrarStatsAvancadas = function() { const conv=conversas.find(c=>c.id===conversaAtualId); const total=conv.historico.length; const userCount=conv.historico.filter(m=>m.role==='user').length; const botCount=total-userCount; const chars=conv.historico.reduce((a,m)=>a+(m.text?.length||0),0); mostrarToast(`📊 Avançado: ${userCount} suas | ${botCount} IA | ${chars} caracteres`); };
+    window.limparCache = function() { localStorage.removeItem("nexus_conversas"); localStorage.removeItem("nexus_gemini_key"); mostrarToast("Cache limpo, recarregue a página"); setTimeout(()=>location.reload(), 1000); };
+    window.verLogs = function() { alert("Logs do sistema:\nÚltima ação: " + new Date().toLocaleString() + "\nConfigurações salvas: " + Object.keys(localStorage).length); };
+    function exportarConfig() { const cfg={API_KEY,temperatura,modeloSalvo,somAtivo,timerMode}; const blob=new Blob([JSON.stringify(cfg)],{type:"application/json"}); const a=document.createElement("a"); a.href=URL.createObjectURL(blob); a.download="nexus_config.json"; a.click(); }
+    // ========== AUXILIARES ==========
+    window.exportarConversa = function() { const conv=conversas.find(c=>c.id===conversaAtualId); let txt=`Conversa: ${conv.nome}\n\n`; conv.historico.forEach(m=>{txt+=`${m.role==='user'?'👤 Você':'🤖 Nexus'}: ${m.text}\n\n`;}); const blob=new Blob([txt],{type:"text/plain"}); const a=document.createElement("a"); a.href=URL.createObjectURL(blob); a.download=`nexus_${conv.nome.replace(/ /g,'_')}.txt`; a.click(); mostrarToast("Exportado!"); };
+    window.mostrarStats = function() { const conv=conversas.find(c=>c.id===conversaAtualId); const total=conv.historico.length; const userCount=conv.historico.filter(m=>m.role==='user').length; const botCount=total-userCount; const chars=conv.historico.reduce((a,m)=>a+(m.text?.length||0),0); mostrarToast(`📊 ${userCount} suas | ${botCount} Nexus | ${chars} caracteres`); };
+    window.limparTodasConversas = function() { if(confirm("Apagar TODAS as conversas?")){ conversas=[{id:Date.now().toString(),nome:"Principal",historico:[],feedbacks:{}}]; conversaAtualId=conversas[0].id; salvarDados(); carregarConversa(); mostrarToast("Tudo limpo"); } };
+    window.alternarTema = function() { document.body.classList.toggle("dark"); localStorage.setItem("nexus_theme",document.body.classList.contains("dark")?"dark":"light"); };
+    window.toggleSidebar = function() { document.getElementById("sidebar").classList.toggle("open"); };
+    function escapeHtml(str) { return str.replace(/[&<>]/g,m=>m==='&'?'&amp;':m==='<'?'&lt;':'&gt;'); }
+    function scrollChat() { messagesDiv.scrollTop = messagesDiv.scrollHeight; }
+    let loadingDiv=null;
+    function mostrarLoading(show){ if(show){ if(loadingDiv) return; loadingDiv=document.createElement("div"); loadingDiv.className="msg bot"; loadingDiv.id="loaderMsg"; loadingDiv.innerHTML=`<div class="avatar"><i class="fas fa-brain"></i></div><div class="bubble"><div class="thinking-dots"><span></span><span></span><span></span></div></div>`; messagesDiv.appendChild(loadingDiv); scrollChat(); } else { if(loadingDiv) loadingDiv.remove(); loadingDiv=null; } }
+    function mostrarToast(msg,erro=false){ if(!somAtivo && !erro) return; const t=document.createElement("div"); t.className="toast"; t.style.background=erro?"#b91c1c":"#1e6f5c"; t.innerText=msg; document.body.appendChild(t); setTimeout(()=>t.remove(),2500); }
+    window.onclick = function(event) { if (event.target === document.getElementById("configModal")) fecharConfiguracoes(); if (event.target === document.getElementById("editProfileModal")) fecharModalPerfil(); };
+    // Inicialização
+    if (localStorage.getItem("nexus_theme") === "dark") document.body.classList.add("dark");
+    verificarModoNoturno();
+    carregarDados();
+    atualizarPerfilUI();
+    chatInput.addEventListener("keypress", e => { if (e.key === "Enter") enviarMensagem(); });
+    if (localStorage.getItem("spacing")) document.querySelector('.messages').style.gap = localStorage.getItem("spacing") + "px";
+    if (localStorage.getItem("borderRadius")) document.querySelectorAll('.bubble').forEach(b=>b.style.borderRadius=localStorage.getItem("borderRadius")+"px");
+    if (localStorage.getItem("fontSize")) document.querySelectorAll('.bubble').forEach(b=>b.style.fontSize=localStorage.getItem("fontSize")+"rem");
+    if (localStorage.getItem("primaryColor")) document.documentElement.style.setProperty('--primary', localStorage.getItem("primaryColor"));
+    // ========== GERAÇÃO DE IMAGEM COM GEMINI-2.5-FLASH-IMAGE ==========
+async function gerarImagemGemini(prompt) {
+    const key = API_KEY || localStorage.getItem("nexus_gemini_key");
+    if (!key) throw new Error("Configure sua chave API");
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-image:generateContent?key=${key}`;
+    const payload = {
+        contents: [{ parts: [{ text: prompt }] }],
+        generationConfig: { responseModalities: ["IMAGE"], temperature: 1.0 }
+    };
+    const resp = await fetch(url, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+    });
+    if (!resp.ok) {
+        const erro = await resp.json().catch(() => ({}));
+        throw new Error(erro.error?.message || `Erro ${resp.status}`);
+    }
+    const data = await resp.json();
+    const parts = data.candidates?.[0]?.content?.parts;
+    if (!parts) throw new Error("Nenhuma imagem gerada");
+    let base64 = null;
+    for (let part of parts) {
+        if (part.inlineData && part.inlineData.mimeType.startsWith("image/")) {
+            base64 = part.inlineData.data;
+            break;
+        }
+    }
+    if (!base64) throw new Error("Formato de imagem não retornado");
+    return `data:image/png;base64,${base64}`;
+}
+
+window.nanoBanano = async function() {
+    const prompt = "Um pequeno banano dourado e brilhante, estilo nano, pixel art premium, fundo escuro com efeito de brilho, cores vibrantes, arte conceitual incrível";
+    adicionarMsgUser(`🍌 Gerar imagem: Nano Banano`, true);
+    mostrarLoading(true);
+    try {
+        const imgSrc = await gerarImagemGemini(prompt);
+        mostrarLoading(false);
+        const div = document.createElement("div");
+        div.className = "msg bot";
+        div.innerHTML = `
+            <div class="avatar" style="background: linear-gradient(135deg, var(--primary), var(--primary-light)); color: white;"><i class="fas fa-brain"></i></div>
+            <div class="bubble">
+                <img src="${imgSrc}" style="max-width: 100%; border-radius: 20px; margin-bottom: 8px;">
+                <div><em>🍌 Nano Banano gerado com gemini-2.5-flash-image</em></div>
+                <div class="msg-actions">
+                    <button onclick="copiarMsg(this)"><i class="fas fa-copy"></i></button>
+                    <button onclick="darFeedback(this,'like')"><i class="fas fa-thumbs-up"></i></button>
+                    <button onclick="darFeedback(this,'dislike')"><i class="fas fa-thumbs-down"></i></button>
+                </div>
+            </div>
+        `;
+        messagesDiv.appendChild(div);
+        scrollChat();
+    } catch (err) {
+        mostrarLoading(false);
+        adicionarMsgBot("❌ Erro ao gerar Nano Banano: " + err.message, null, null, true);
+        mostrarToast(err.message, true);
+    }
+};
+    // ========== RESET TOTAL DO APLICATIVO ==========
+window.resetTotalApp = function() {
+    if (confirm("⚠️ ATENÇÃO! Isso irá apagar TODAS as conversas, configurações, chave API e perfil. O aplicativo será reiniciado do zero. Tem certeza?")) {
+        // Limpa todo o localStorage
+        localStorage.clear();
+        // Recarrega a página
+        location.reload();
+    }
+};
+    // ========== +5 FUNÇÕES DO MODO DESENVOLVEDOR ==========
+// Função 6: Inspecionar requisições da API
+function inspecionarRequisicoes() {
+    if (localStorage.getItem("devMode") !== "true") {
+        console.warn("[DevMode] Ative o modo desenvolvedor nas configurações primeiro.");
+        return;
+    }
+    console.log("[DevMode] Inspecionando requisições da API...");
+    // Intercepta fetch para logar requisições
+    const originalFetch = window.fetch;
+    window.fetch = async (...args) => {
+        const url = args[0];
+        if (typeof url === 'string' && url.includes('generativelanguage.googleapis.com')) {
+            console.groupCollapsed("[DevMode] Requisição API");
+            console.log("URL:", url);
+            console.log("Payload:", args[1]?.body);
+            console.time("[DevMode] Tempo da requisição");
+            const response = await originalFetch(...args);
+            console.timeEnd("[DevMode] Tempo da requisição");
+            console.log("Status:", response.status);
+            console.groupEnd();
+            return response;
+        }
+        return originalFetch(...args);
+    };
+    mostrarToast("🔍 Inspeção de API ativada. Abra o console (F12).");
+}
+
+// Função 7: Visualizar histórico completo da conversa no console
+function verHistoricoCompleto() {
+    if (localStorage.getItem("devMode") !== "true") {
+        console.warn("[DevMode] Ative o modo desenvolvedor primeiro.");
+        return;
+    }
+    const conv = conversas.find(c => c.id === conversaAtualId);
+    if (!conv) return;
+    console.group(`[DevMode] Histórico da conversa: ${conv.nome}`);
+    conv.historico.forEach((msg, idx) => {
+        console.log(`${idx + 1}. [${msg.role.toUpperCase()}] ${msg.text.substring(0, 150)}${msg.text.length > 150 ? '...' : ''}`);
+    });
+    console.log(`Total: ${conv.historico.length} mensagens`);
+    console.groupEnd();
+    mostrarToast("📜 Histórico exportado no console");
+}
+
+// Função 8: Simular erro de rede para testar fallback
+function simularErroRede() {
+    if (localStorage.getItem("devMode") !== "true") {
+        console.warn("[DevMode] Ative o modo desenvolvedor primeiro.");
+        return;
+    }
+    console.log("[DevMode] Simulando erro de rede...");
+    const originalFetch = window.fetch;
+    window.fetch = async (...args) => {
+        if (args[0].includes('generativelanguage.googleapis.com')) {
+            throw new Error("🚨 [DevMode] Erro de rede simulado!");
+        }
+        return originalFetch(...args);
+    };
+    mostrarToast("⚠️ Erro de rede simulado! As chamadas à API falharão.");
+    setTimeout(() => {
+        window.fetch = originalFetch;
+        console.log("[DevMode] Simulação encerrada. Rede restaurada.");
+        mostrarToast("✅ Simulação encerrada. Rede normal.");
+    }, 30000);
+}
+
+// Função 9: Exportar logs do sistema em JSON
+function exportarLogsDev() {
+    if (localStorage.getItem("devMode") !== "true") {
+        console.warn("[DevMode] Ative o modo desenvolvedor primeiro.");
+        return;
+    }
+    const logs = {
+        timestamp: new Date().toISOString(),
+        conversaAtual: conversas.find(c => c.id === conversaAtualId)?.nome,
+        totalConversas: conversas.length,
+        configuracoes: {
+            apiKey: API_KEY ? "***" : null,
+            temperatura,
+            modelo: modeloSalvo,
+            somAtivo,
+            timerMode,
+            spacing: localStorage.getItem("spacing"),
+            borderRadius: localStorage.getItem("borderRadius"),
+            fontSize: localStorage.getItem("fontSize"),
+            devMode: localStorage.getItem("devMode") === "true"
+        },
+        historicoCompleto: conversas.map(c => ({
+            nome: c.nome,
+            mensagens: c.historico.length,
+            feedbacks: Object.keys(c.feedbacks || {}).length
+        }))
+    };
+    const blob = new Blob([JSON.stringify(logs, null, 2)], { type: "application/json" });
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = `nexus_dev_logs_${Date.now()}.json`;
+    a.click();
+    mostrarToast("📁 Logs exportados!");
+}
+
+// Função 10: Destacar elementos da interface por ID
+function destacarElementosUI() {
+    if (localStorage.getItem("devMode") !== "true") {
+        console.warn("[DevMode] Ative o modo desenvolvedor primeiro.");
+        return;
+    }
+    const elementos = {
+        sidebar: document.getElementById("sidebar"),
+        messagesArea: document.getElementById("messagesArea"),
+        chatInput: document.getElementById("chatInput"),
+        configModal: document.getElementById("configModal"),
+        editProfileModal: document.getElementById("editProfileModal")
+    };
+    for (const [nome, el] of Object.entries(elementos)) {
+        if (el) {
+            el.style.transition = "0.3s";
+            el.style.boxShadow = "0 0 0 2px var(--primary), 0 0 0 6px rgba(30,111,92,0.3)";
+            setTimeout(() => {
+                el.style.boxShadow = "";
+            }, 2000);
+        }
+    }
+    mostrarToast("🎨 Elementos da interface destacados!");
+}
+
+// Registrar funções no escopo global para acesso via console
+window.inspecionarRequisicoes = inspecionarRequisicoes;
+window.verHistoricoCompleto = verHistoricoCompleto;
+window.simularErroRede = simularErroRede;
+window.exportarLogsDev = exportarLogsDev;
+window.destacarElementosUI = destacarElementosUI;
+
+console.log("[DevMode] +5 funções carregadas! Digite: inspecionarRequisicoes(), verHistoricoCompleto(), simularErroRede(), exportarLogsDev(), destacarElementosUI()");
+</script>
+</body>
+</html>
